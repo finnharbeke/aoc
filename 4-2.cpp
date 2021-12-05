@@ -24,6 +24,7 @@ signed main() {
 
     vector<vector<vector<int> > > boards;
     vector<vector<vector<bool> > > bingo;
+    vector<bool> won;
     int i = 0;
     while (cin >> n) {
         int b = (int)(i / 25);
@@ -31,6 +32,7 @@ signed main() {
         if (i % 25 == 0) {
             boards.push_back(vector<vector<int> >());
             bingo.push_back(vector<vector<bool> >());
+            won.push_back(false);
         }
         if (i % 5 == 0) {
             boards.back().push_back(vector<int>());
@@ -69,10 +71,16 @@ signed main() {
                     bingo = v & bingo;
                 }
                 if (bingo) {
-                    winnerB = b;
-                    winner = boards.at(bi);
-                    found = true;
-                    break;
+                    won.at(bi) = true;
+                    bool all = true;
+                    for (auto w:won)
+                        all = all & w;
+                    if (all) {
+                        winnerB = b;
+                        winner = boards.at(bi);
+                        found = true;
+                        break;
+                    }
                 }
             }
             if (!found)
@@ -82,10 +90,16 @@ signed main() {
                     bingo = bingo & b.at(row).at(col);
                 }
                 if (bingo) {
-                    winnerB = b;
-                    winner = boards.at(bi);
-                    found = true;
-                    break;
+                    won.at(bi) = true;
+                    bool all = true;
+                    for (auto w:won)
+                        all = all & w;
+                    if (all) {
+                        winnerB = b;
+                        winner = boards.at(bi);
+                        found = true;
+                        break;
+                    }
                 }
             }
 

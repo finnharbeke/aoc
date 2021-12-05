@@ -1,5 +1,11 @@
 {
     "code-runner.executorMap": {
         "cpp": "g++ $fileName -Wall -Wextra && ./a.out < $fileNameWithoutExt.txt"
+    },
+    "files.associations": {
+        "iosfwd": "cpp",
+        "unordered_set": "cpp",
+        "__hash_table": "cpp",
+        "algorithm": "cpp"
     }
 }
