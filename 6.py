@@ -5,9 +5,9 @@ for x in fish:
 for t in range(256):
     nWithTime = nWithTime[1:] + [nWithTime[0]]
     nWithTime[6] += nWithTime[8]
-    print(nWithTime)
+    #print(nWithTime)
 print(sum(nWithTime))
 
 
 #print(fish)
-print(len(fish))
+#print(len(fish))
