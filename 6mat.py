@@ -14,8 +14,8 @@ fish = [int(x) for x in input().split(",")]
 start = np.diagflat([fish.count(x) for x in range(9)])
 #print(start)
 res = mat.copy()
-for t in range(256 - 1):
-    res = res.dot(mat)
+for t in range(8):
+    res = res.dot(res)
 
 #print(res)
 print(res.dot(start).sum())
