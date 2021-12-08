@@ -1,0 +1,2 @@
+import itertools as i
+print(sum([sum([[d:=["1110111","0010010","1011101","1011011","0111010","1101011","1101111","1010010","1111111","1111011"],n:=lambda x, c:"".join("1" if l in x else "0" for l in c),int("".join([str(d.index(n(x, c))) for x in r.split()])) if all([n(x, c) in d for x in a.split()]) else 0][2] for c in i.permutations("abcdefg")]) for a,r in [l.split("|") for l in open("8.txt").readlines()]]))

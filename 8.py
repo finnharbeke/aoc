@@ -102,7 +102,7 @@ for i in range(200):
                 res += str(n)
                 break
     res = int(res)
-    print(res)
+    #print(res)
     total += res
-print(c)
+#print(c)
 print(total)
