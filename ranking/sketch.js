@@ -137,6 +137,8 @@ function findRanks() {
         m.lastRank = i;
         if (m.done(star))
             m.addPts();
+        else
+            m.v_pts = 0;
         i++;
         return true;
     });
