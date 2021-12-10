@@ -1,3 +1,4 @@
+from math import prod
 n = 100
 m = [[9]*(n+2)]+[[9]+[int(x) for x in input()]+[9] for i in range(n)]+[[9]*(n+2)]
 t = 0
@@ -15,10 +16,6 @@ for i in range(1, n+1):
             t += 1 + m[i][j]
             v = []
             sizes.append(size(i, j))
-r = 1
-for i in range(3):
-    r *= max(sizes)
-    sizes.remove(max(sizes))
 
 print(t)
-print(r)
+print(prod(sorted(sizes)[-3:]))
