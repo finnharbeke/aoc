@@ -1,7 +1,4 @@
 dots = set()
-# for line in iter(input, ""):
-#     x, y = [int(_) for _ in line.split(",")]
-#     dots.add((x, y))
 [dots.add(tuple([int(_) for _ in l.split(",")])) for l in iter(input, "")]
 
 first = True
