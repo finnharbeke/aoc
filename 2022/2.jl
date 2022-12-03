@@ -1,4 +1,4 @@
-lines = readlines("test.txt")
+lines = readlines("2.txt")
 
 score = 0
 score2 = 0
