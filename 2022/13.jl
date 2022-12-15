@@ -1,50 +1,45 @@
-lines = readlines("13.txt")
+function read_num(str, ix)
+    if isdigit(str[ix+1])
+        return parse(Int64, str[ix:ix+1]), ix+1
+    else
+        return parse(Int64, str[ix]), ix
+    end
+end
+
+function make_list(str, ix)
+    if isdigit(str[ix+1])
+        return str[1:ix-1] * "[" * str[ix:ix+1] * "]" * str[ix+2:length(str)]
+    else
+        return str[1:ix-1] * "[" * str[ix] * "]" * str[ix+1:length(str)]
+    end
+end
 
 function check_pair(left, right)
-
     li = 1
     ri = 1
     while li <= length(left) && ri <= length(right)
         if isdigit(left[li]) && isdigit(right[ri])
-            if isdigit(left[li+1])
-                l_val = parse(Int64, left[li:li+1])
-                li += 1
-            else
-                l_val = parse(Int64, left[li])
-            end
-            if isdigit(right[ri+1])
-                r_val = parse(Int64, right[ri:ri+1])
-                ri += 1
-            else
-                r_val = parse(Int64, right[ri])
-            end
+            l_val, li = read_num(left, li)
+            r_val, ri = read_num(right, ri)
             if l_val < r_val
                 return true
             elseif l_val > r_val
                 return false
             end
-        elseif (left[li] == '[' && right[ri] == '[') || (left[li] == ']' && right[ri] == ']') || (left[li] == ',' && right[ri] == ',')
+        elseif (left[li] == '[' && right[ri] == '[') ||
+               (left[li] == ']' && right[ri] == ']') ||
+               (left[li] == ',' && right[ri] == ',')
             # nothing
         elseif left[li] == ']'
             return true
         elseif right[li] == ']'
             return false
         elseif isdigit(left[li]) && right[ri] == '['
-            if isdigit(left[li+1])
-                left = left[1:li-1] * "[" * left[li:li+1] * "]" * left[li+2:length(left)]
-            else
-                left = left[1:li-1] * "[" * left[li] * "]" * left[li+1:length(left)]
-            end
+            left = make_list(left, li)
         elseif isdigit(right[ri]) && left[li] == '['
-            if isdigit(right[ri+1])
-                right = right[1:ri-1] * "[" * right[ri:ri+1] * "]" * right[ri+2:length(right)]
-            else
-                right = right[1:ri-1] * "[" * right[ri] * "]" * right[ri+1:length(right)]
-            end
+            right = make_list(right, ri)
         else
             println("whaat")
-            println(left[li:length(left)])
-            println(right[ri:length(right)])
         end
 
         li += 1
@@ -53,30 +48,25 @@ function check_pair(left, right)
 
 end
 
-total = 0
-for i in 1:3:length(lines)
-    left = lines[i]
-    right = lines[i+1]
+function main()
+    lines = readlines("13.txt")
+    total = 0
+    div1_i, div2_i = 0, 0
+    for i in 1:3:length(lines)
+        left = lines[i]
+        right = lines[i+1]
 
-    if check_pair(left, right)
-        global total
-        # println(i ÷ 3 + 1)
-        total += i ÷ 3 + 1
+        if check_pair(left, right)
+            # println(i ÷ 3 + 1)
+            total += i ÷ 3 + 1
+        end
+        div1_i += check_pair(left, "[[2]]")
+        div1_i += check_pair(right, "[[2]]")
     end
+
+    println(total)
+
+    println(div1_i * div2_i)
 end
 
-println(total)
-
-# part 2
-filter!(l -> l != "", lines)
-div1 = "[[2]]"
-div2 = "[[6]]"
-push!(lines, div1)
-push!(lines, div2)
-
-sort!(lines, lt=check_pair)
-
-div1_i = findfirst(isequal(div1), lines)
-div2_i = findfirst(isequal(div2), lines)
-
-println(div1_i * div2_i)
+@time main()
