@@ -127,9 +127,6 @@ function pyroclastic_flow()
 
     println(cut_off + length(tower) - 1)
 
-
-    display(hist)
-    display(ns)
 end
 
 @time pyroclastic_flow()
