@@ -1,4 +1,4 @@
-function merge_intervals(inters)
+function merge_intervals!(inters::Vector{Pair{Int64, Int64}})
     back_ix = length(inters)
     while back_ix > 1
         left, right = popat!(inters, back_ix)
@@ -9,77 +9,80 @@ function merge_intervals(inters)
                 # not touching
                 continue
             else
-                inters[i] = (min(fleft, left), max(fright, right))
+                inters[i] = Pair(min(fleft, left), max(fright, right))
                 merged = true
                 break
             end
         end
         if !merged
-            push!(inters, (left, right))
+            push!(inters, Pair(left, right))
         end
         back_ix -= 1
     end
-    return inters
+    sort!(inters)
 end
 
 function main()
     lines = readlines("15.txt")
 
     y = 2e6
-    # y = 10
+    y = 10
     bound = 4000000
-    # bound = 20
+    bound = 20
+    n_beacons_on_y = 0
+    n = length(lines)
+    y_inters = Vector{Pair{Int64, Int64}}()
+    top_left_ys  = Array{Union{Nothing, Int64}, 1}(nothing, n)
+    top_right_ys = Array{Union{Nothing, Int64}, 1}(nothing, n)
+    bot_left_ys  = Array{Union{Nothing, Int64}, 1}(nothing, n)
+    bot_right_ys = Array{Union{Nothing, Int64}, 1}(nothing, n)
 
-    not_poss = Set{Int64}()
-    beacons = Set{Int64}()
-    sensors = Set{Int64}()
+    up_pairs = Vector{Int64}()
+    down_pairs = Vector{Int64}()
 
-    all_inters = [[] for i in range(0, bound)]
-
-    for line in lines
-        sx, sy, bx, by = findall(r"-?\d+", line)
-        sx, sy, bx, by = [parse(Int64, line[coord]) for coord in [sx, sy, bx, by]]
-        if sy == y
-            push!(sensors, sx)
-        end
+    for (i, line) in enumerate(lines)
+        sx, sy, bx, by = [parse(Int64, line[coord]) for coord in findall(r"-?\d+", line)]
         if by == y
-            push!(beacons, bx)
+            n_beacons_on_y += 1
         end
+        # part 1
         man_dist = abs(sx - bx) + abs(sy - by)
-        vert_dist = abs(sy - y)
-
+        range = max(0, man_dist - abs(sy - y))
         # println(man_dist, " ", vert_dist)
+        push!(y_inters, Pair(sx - range, sx + range))
+        merge_intervals!(y_inters)
 
-        for i in range(0, man_dist - vert_dist)
-            push!(not_poss, sx + i)
-            push!(not_poss, sx - i)
+        # part 2
+        # y intercept of boundaries that are outside of man_dist
+        top_left_ys[i]  = sy + (man_dist + 1) - sx
+        top_right_ys[i] = sy + (man_dist + 1) + sx
+        bot_left_ys[i]  = sy - (man_dist + 1) + sx
+        bot_right_ys[i] = sy - (man_dist + 1) - sx
+
+        if top_left_ys[i] in bot_right_ys[i]
+            push!(up_pairs, top_left_ys[i])
         end
-
-        for i in range(0, man_dist)
-            if sy + i >= 0 && sy + i <= bound
-                push!(all_inters[sy+i+1], (max(0, sx - (man_dist - i)), min(bound, sx + (man_dist - i))))
-                all_inters[sy+i+1] = merge_intervals(all_inters[sy+i+1])
-            end
-            if sy - i >= 0 && sy - i <= bound
-                push!(all_inters[sy-i+1], (max(0, sx - (man_dist - i)), min(bound, sx + (man_dist - i))))
-                all_inters[sy-i+1] = merge_intervals(all_inters[sy-i+1])
-            end
+        if top_right_ys[i] in bot_left_ys[i]
+            push!(down_pairs, top_right_ys[i])
+        end
+        if bot_left_ys[i] in top_right_ys[i]
+            push!(down_pairs, bot_left_ys[i])
+        end
+        if bot_right_ys[i] in top_left_ys[i]
+            push!(up_pairs, bot_right_ys[i])
         end
     end
-    println(length(setdiff(not_poss, union(beacons, sensors))))
-    
-    for (i, inters) in enumerate(all_inters)
-        if length(inters) > 1
-            println(i - 1, " ", inters)
-            if inters[1][1] == 0
-                x = inters[1][2] + 1
-            else
-                x = inters[2][2] + 1
-            end
-            y = i - 1
-            println(x * 4000000 + y)
-        end
-    end
+    println(y_inters)
+    left, right = y_inters[1]
+    println(right - left + 1 - n_beacons_on_y)
+
+    println(up_pairs)
+    println(down_pairs)
+    println(top_left_ys)
+    println(top_right_ys)
+    println(bot_left_ys)
+    println(bot_right_ys)
+    println(intersect(top_left_ys, top_right_ys, bot_left_ys, bot_right_ys))
 end
 
 @time main()
