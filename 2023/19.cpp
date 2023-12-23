@@ -24,6 +24,76 @@ struct part {
     int x, m, a, s;
 };
 
+struct bounds {
+    int xl, xu;
+    int ml, mu;
+    int al, au;
+    int sl, su;
+};
+
+int count(bounds bnds) {
+    return (bnds.xu - bnds.xl + 1)
+         * (bnds.mu - bnds.ml + 1)
+         * (bnds.au - bnds.al + 1)
+         * (bnds.su - bnds.sl + 1);
+}
+
+int dfs(bounds b, string token, int ix, map<string, vector<pattern>> &workflows) {
+    // cout << "token " << token << "; " << ix << endl;
+    // cout << "bounds: " << "x: " << b.xl << "-" << b.xu << ", m:" << b.ml << "-" << b.mu << ", a:" << b.al << "-" << b.au << ", s:" << b.sl << "-" << b.su << endl;
+    if (b.xl > b.xu || b.ml > b.mu || b.al > b.au || b.sl > b.su)
+        return 0;
+    if (token == ACC) {
+        return count(b);
+        // p(c);
+        // return c;
+    }
+    if (token == REJ)
+        return 0;
+    pattern pat = workflows[token].at(ix);
+    bounds applies;
+    bounds doesnt;
+    if (pat.direct)
+        return dfs(b, pat.gonext, 0, workflows);
+    else if (pat.category == 'x') {
+        if (pat.larger) {
+            applies = { max(b.xl, pat.than + 1), b.xu, b.ml, b.mu, b.al, b.au, b.sl, b.su };
+            doesnt = { b.xl, min(pat.than, b.xu), b.ml, b.mu, b.al, b.au, b.sl, b.su };
+        } else {
+            applies = { b.xl, min(pat.than - 1, b.xu), b.ml, b.mu, b.al, b.au, b.sl, b.su };
+            doesnt = { max(b.xl, pat.than), b.xu, b.ml, b.mu, b.al, b.au, b.sl, b.su };
+        }
+    } else if (pat.category == 'm') {
+        if (pat.larger) {
+            applies = { b.xl, b.xu, max(b.ml, pat.than + 1), b.mu, b.al, b.au, b.sl, b.su };
+            doesnt = { b.xl, b.xu, b.ml, min(pat.than, b.mu), b.al, b.au, b.sl, b.su };
+        } else {
+            applies = { b.xl, b.xu, b.ml, min(pat.than - 1, b.mu), b.al, b.mu, b.sl, b.su };
+            doesnt = { b.xl, b.xu, max(b.ml, pat.than), b.mu, b.al, b.au, b.sl, b.su };
+        }
+    } else if (pat.category == 'a') {
+        if (pat.larger) {
+            applies = { b.xl, b.xu, b.ml, b.mu, max(b.al, pat.than + 1), b.au, b.sl, b.su };
+            doesnt = { b.xl, b.xu, b.ml, b.mu, b.al, min(pat.than, b.au), b.sl, b.su };
+        } else {
+            applies = { b.xl, b.xu, b.ml, b.mu, b.al, min(pat.than - 1, b.au), b.sl, b.su };
+            doesnt = { b.xl, b.xu, b.ml, b.mu, max(b.al, pat.than), b.au, b.sl, b.su };
+        }
+    } else if (pat.category == 's') {
+        if (pat.larger) {
+            applies = { b.xl, b.xu, b.ml, b.mu, b.al, b.au, max(b.sl, pat.than + 1), b.su };
+            doesnt = { b.xl, b.xu, b.ml, b.mu, b.al, b.au, b.sl, min(pat.than, b.su) };
+        } else {
+            applies = { b.xl, b.xu, b.ml, b.mu, b.al, b.au, b.sl, min(pat.than - 1, b.su) };
+            doesnt = { b.xl, b.xu, b.ml, b.mu, b.al, b.au, max(b.sl, pat.than), b.su };
+        }
+    }
+    int a = dfs(applies, pat.gonext, 0, workflows);
+    int d = dfs(doesnt, token, ix+1, workflows);
+    // p(a + d)
+    return a + d;
+}
+
 signed main() {
     string line;
     bool reading_wfs = true;
@@ -103,5 +173,10 @@ signed main() {
         }
     }
     cout << res << endl;
+
+    bounds all = {1, 4000, 1, 4000, 1, 4000, 1, 4000};
+    cout << dfs(all, "in", 0, workflows) << endl;
+
+
     return 0;
 }
